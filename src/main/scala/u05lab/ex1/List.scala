@@ -67,16 +67,21 @@ enum List[A]:
 
   def zipRight: List[(A, Int)] = this.map((e) => (e, 0))
 
-  def partition(pred: A => Boolean): (List[A], List[A]) = (this.filter(pred), this.filter(!pred(_)))
+  def partition(pred: A => Boolean): (List[A], List[A]) =
+    this.foldLeft((Nil(), Nil()))((acc, e) => if pred(e) then (acc._1.append(List(e)), acc._2) else (acc._1, acc._2.append(List(e))))
 
-  def span(pred: A => Boolean): (List[A], List[A]) = ???
+  def span(pred: A => Boolean): (List[A], List[A]) =
+    val (x: List[A], y: List[A], z) = this.foldLeft((Nil(), Nil(), true))((acc, e) => if !pred(e) then if acc._3 then (acc._1.append(List(e)), acc._2, true) else (acc._1, acc._2.append(List(e)), false) else if acc._3 then (acc._1.append(List(e)), acc._2, false) else (acc._1, acc._2.append(List(e)), false))
+    (x, y)
 
-
-
-  /** @throws UnsupportedOperationException if the list is empty */
-  def reduce(op: (A, A) => A): A = ???
+  def reduce(op: (A, A) => A): Option[A] = this match
+    case _ if this.isEmpty => None
+    case h :: t if t.isEmpty => Some(h)
+    case h :: t  => Some(op(h, t.reduce(op).get))
 
   def takeRight(n: Int): List[A] = ???
+
+  // k = 2
 
 // Factories
 object List:
