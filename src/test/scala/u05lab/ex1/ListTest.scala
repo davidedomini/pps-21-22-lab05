@@ -16,8 +16,10 @@ class ListTest {
 
   @Test
   def testZipRight(): Unit = {
-    val l: List[Int] = List(10,20,30)
-    assertEquals(List((10,0), (20,1), (30,2)), l.zipRight)
+    val l: List[Int] = List(10,20,30,40,50)
+    val res = l.zipRight
+    println(res)
+    assertEquals(List((10,0), (20,1), (30,2), (40,3), (50,4)), res)
   }
 
   @Test
@@ -42,7 +44,6 @@ class ListTest {
     assertEquals(1, l2.reduce(_+_).get)
     assertTrue(o.reduce((e:Nothing,l:Nothing) => e).isEmpty)
   }
-
 
   @Test
   def testTakeRight(): Unit = {

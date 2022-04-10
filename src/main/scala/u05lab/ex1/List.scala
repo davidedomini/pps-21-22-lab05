@@ -65,23 +65,35 @@ enum List[A]:
       case Nil() => Nil()
     _zip(0, this)
 
-  def zipRight: List[(A, Int)] = this.map((e) => (e, 0))
+  def zipRight: List[(A, Int)] =
+    this.foldLeft( (Nil().asInstanceOf[List[(A, Int)]], 0)  )( (acc, e) => (acc._1.append(List((e,acc._2))), acc._2+1))._1
 
   def partition(pred: A => Boolean): (List[A], List[A]) =
     this.foldLeft((Nil(), Nil()))((acc, e) => if pred(e) then (acc._1.append(List(e)), acc._2) else (acc._1, acc._2.append(List(e))))
 
   def span(pred: A => Boolean): (List[A], List[A]) =
-    val (x: List[A], y: List[A], z) = this.foldLeft((Nil(), Nil(), true))((acc, e) => if !pred(e) then if acc._3 then (acc._1.append(List(e)), acc._2, true) else (acc._1, acc._2.append(List(e)), false) else if acc._3 then (acc._1.append(List(e)), acc._2, false) else (acc._1, acc._2.append(List(e)), false))
-    (x, y)
+    val (x, y, z) = this.foldLeft((Nil().asInstanceOf[List[A]], Nil().asInstanceOf[List[A]], true))(
+      (acc, e) =>
+        if acc._3 then
+          if !pred(e) then
+            (acc._1.append(List(e)), acc._2, true)
+          else
+            (acc._1.append(List(e)), acc._2, false)
+        else
+          (acc._1, acc._2.append(List(e)), false)
+    )
+    (x,y)
 
   def reduce(op: (A, A) => A): Option[A] = this match
     case _ if this.isEmpty => None
     case h :: t if t.isEmpty => Some(h)
     case h :: t  => Some(op(h, t.reduce(op).get))
 
-  def takeRight(n: Int): List[A] = ???
-
-  // k = 2
+  def takeRight(n: Int): List[A] =
+    def _take(n: Int, l: List[A]): List[A] = l match
+      case h :: t if n > 0 => List(h).append(_take(n-1, t))
+      case _ => Nil()
+    _take(n, this.reverse()).reverse()
 
 // Factories
 object List:
